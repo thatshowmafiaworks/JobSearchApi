@@ -1,0 +1,5 @@
+﻿namespace JobSearchApi.Models.Enums
+{
+
+
+}
