@@ -1,4 +1,5 @@
-﻿using JobSearchApi.Models.DTO;
+﻿using JobSearchApi.Models;
+using JobSearchApi.Models.DTO;
 using JobSearchApi.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,8 +9,8 @@ namespace JobSearchApi.Controllers
     [Route("auth")]
     public class AuthController(
         ITokenService tokenService,
-        UserManager<IdentityUser> userManager,
-        SignInManager<IdentityUser> signinManager
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signinManager
     ) : ControllerBase
     {
         [HttpPost("login")]
@@ -36,7 +37,7 @@ namespace JobSearchApi.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            var user = new IdentityUser { Email = model.Email, UserName = model.Email};
+            var user = new ApplicationUser { Email = model.Email, UserName = model.Email};
             var result = await userManager.CreateAsync(user,model.Password);
 
             if (!result.Succeeded)

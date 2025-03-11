@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JobSearchApi.Data
 {
-    public class AppDbContext:IdentityDbContext
+    public class AppDbContext:IdentityDbContext<ApplicationUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -12,5 +12,6 @@ namespace JobSearchApi.Data
         }
         public DbSet<Company> Companies { get; set; }
         public DbSet<VacancyDetails> VacancyDetails { get; set; }
+        public DbSet<VacancyList> VacancyLists { get; set; }
     }
 }

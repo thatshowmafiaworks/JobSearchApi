@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using JobSearchApi.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -8,7 +9,7 @@ namespace JobSearchApi.Services
 {
     public class TokenService(IConfiguration config,ILogger<TokenService> logger):ITokenService
     {
-        public string GenerateToken(IdentityUser user,IList<string> roles)
+        public string GenerateToken(ApplicationUser user,IList<string> roles)
         {
 
             var tokenHandler = new JwtSecurityTokenHandler();

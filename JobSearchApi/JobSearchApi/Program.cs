@@ -1,4 +1,7 @@
 using JobSearchApi.Data;
+using JobSearchApi.Models;
+using JobSearchApi.Repositories;
+using JobSearchApi.Repositories.Interfaces;
 using JobSearchApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -24,7 +27,7 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 var issuer = config["Issuer"];
@@ -52,6 +55,7 @@ builder.Services
             ValidateIssuerSigningKey = true,
         };
     });
+builder.Services.AddTransient<ICompanyRepository, CompanyRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthorization();
