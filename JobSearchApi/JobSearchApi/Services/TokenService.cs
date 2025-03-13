@@ -7,9 +7,12 @@ using System.Text;
 
 namespace JobSearchApi.Services
 {
-    public class TokenService(IConfiguration config,ILogger<TokenService> logger):ITokenService
+    public class TokenService(
+        IConfiguration config,
+        ILogger<TokenService> logger,
+        UserManager<ApplicationUser> userManager) : ITokenService
     {
-        public string GenerateToken(ApplicationUser user,IList<string> roles)
+        public async Task<string> GenerateToken(ApplicationUser user, IList<string> roles)
         {
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -18,11 +21,15 @@ namespace JobSearchApi.Services
 
             var claims = new List<Claim>
             {
-                new Claim("sub",user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub,user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email,user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Name,user.UserName)
             };
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role.ToString(), role));
+            }
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -30,7 +37,7 @@ namespace JobSearchApi.Services
                 Expires = DateTime.UtcNow.AddHours(1),
                 Issuer = config["Issuer"],
                 Audience = config["Audience"],
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);

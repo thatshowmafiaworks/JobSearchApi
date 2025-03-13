@@ -1,6 +1,7 @@
 ﻿using JobSearchApi.Data;
 using JobSearchApi.Models.DTO;
 using JobSearchApi.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobSearchApi.Controllers
@@ -12,7 +13,7 @@ namespace JobSearchApi.Controllers
         ILogger<CompanyController> logger
         ) : ControllerBase
     {
-        [HttpPut]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CompanyModel model)
         {
             if (!ModelState.IsValid)
@@ -20,7 +21,7 @@ namespace JobSearchApi.Controllers
                 return BadRequest(new { error = "wrong request" });
             }
             var result = await companyRepository.Create(model);
-            if (string.IsNullOrEmpty(result))
+            if (string.IsNullOrWhiteSpace(result))
             {
                 return StatusCode(500, new { error = "something went wrong on server side" });
             }
@@ -30,7 +31,7 @@ namespace JobSearchApi.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCompany(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrWhiteSpace(id))
             {
                 return BadRequest(new { error = "id is empty" });
             }
@@ -52,17 +53,50 @@ namespace JobSearchApi.Controllers
             }
             return Ok(new { companies = companies });
         }
-        [HttpPost]
-        public async Task<IActionResult> Update([FromBody] string id, [FromBody] CompanyModel model)
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("update")]
+        public async Task<IActionResult> Update([FromBody] CompanyModel model)
         {
-            throw new NotImplementedException("Update not implemented");
+            if (string.IsNullOrWhiteSpace(model.Id))
+            {
+                logger.LogWarning($"User tried to update company with null id");
+                return BadRequest(new { error = "Id is empty" });
+            }
+            var company = await companyRepository.FindById(model.Id);
+            if (company is null)
+            {
+                logger.LogInformation($"Not found company with id: {model.Id}");
+                return BadRequest(new { error = $"Not found company with id: {model.Id}" });
+            }
+            var result = await companyRepository.Update(model);
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                logger.LogError($"Update company with id:{model.Id} went wrong");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = $"Something went wrong, please try later" });
+
+            }
+            logger.LogInformation($"Updated company with id: {model.Id}");
+            return Ok(new { result = $"Updated company with Id: {result}" });
         }
 
-        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [HttpPost("delete")]
         public async Task<IActionResult> Delete([FromBody] string id)
         {
-            throw new NotImplementedException("Delete not implemented");
-
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                logger.LogError($"Provided empty id for delete");
+                return BadRequest(new { error = "Id is empty" });
+            }
+            var result = await companyRepository.Delete(id);
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                logger.LogError($"Provided empty id for delete");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = $"Something went wrong, please try later" });
+            }
+            logger.LogInformation($"Deleted company with id: {id}");
+            return Ok(new { result = result });
         }
     }
 }

@@ -7,8 +7,8 @@ namespace JobSearchApi.Repositories.Interfaces
     {
         Task<Company> FindById(string id);
         Task<string> Create(CompanyModel model);
-        Task<bool> Update(string id, CompanyModel model);
-        Task<bool> Delete(string id);
+        Task<string> Update(CompanyModel model);
+        Task<string> Delete(string id);
         Task<List<CompanyViewModel>> GetAll();
     }
 }

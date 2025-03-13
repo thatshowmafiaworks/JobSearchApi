@@ -31,14 +31,14 @@ namespace JobSearchApi.Controllers
             var roles = await userManager.GetRolesAsync(user);
             var token = tokenService.GenerateToken(user, roles);
 
-            return Ok(new { token });
+            return Ok(new { token = token.Result });
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            var user = new ApplicationUser { Email = model.Email, UserName = model.Email};
-            var result = await userManager.CreateAsync(user,model.Password);
+            var user = new ApplicationUser { Email = model.Email, UserName = model.Email };
+            var result = await userManager.CreateAsync(user, model.Password);
 
             if (!result.Succeeded)
             {

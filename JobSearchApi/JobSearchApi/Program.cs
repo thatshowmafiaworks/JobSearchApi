@@ -66,6 +66,7 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+
 app.UseSerilogRequestLogging();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -74,6 +75,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//      Creating Roles and assigning Admin role
+
+//using (var scope = app.Services.CreateScope())
+//{
+//    var seeder = new Seeder();
+//    await seeder.Seed(
+//        scope.ServiceProvider.GetRequiredService<ILogger<Seeder>>(),
+//        scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>(),
+//        scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>()
+//    );
+//}
 
 app.UseHttpsRedirection();
 

@@ -30,19 +30,19 @@ namespace JobSearchApi.Repositories
             }
         }
 
-        public async Task<bool> Delete(string id)
+        public async Task<string> Delete(string id)
         {
             var company = await FindById(id);
             if (company is null)
             {
                 logger.LogError($"Not found company with id:{id}");
-                return false;
+                return null;
             }
 
             dbContext.Companies.Remove(company);
             await dbContext.SaveChangesAsync();
             logger.LogInformation($"Deleted company with id:{id}\t name:{company.Name}");
-            return true;
+            return $"Deleted company with id: {id}";
         }
 
         public async Task<Company> FindById(string id)
@@ -56,6 +56,11 @@ namespace JobSearchApi.Repositories
             return company;
         }
 
+        public async Task<Company> FindByName(string name)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<List<CompanyViewModel>> GetAll()
         {
             var companies = await dbContext.Companies.ToListAsync();
@@ -67,20 +72,20 @@ namespace JobSearchApi.Repositories
             return null;
         }
 
-        public async Task<bool> Update(string id, CompanyModel companyModel)
+        public async Task<string> Update(CompanyModel model)
         {
-            var company = await FindById(id);
+            var company = await FindById(model.Id);
 
             if (company is null)
             {
-                return false;
+                return null;
             }
 
-            company.Name = companyModel.Name;
-            company.Website = companyModel.Website;
+            company.Name = model.Name;
+            company.Website = model.Website;
             dbContext.Companies.Update(company);
             await dbContext.SaveChangesAsync();
-            return true;
+            return company.Id;
         }
     }
 }
